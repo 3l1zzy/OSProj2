@@ -15,7 +15,7 @@ public class Animation extends JPanel
     static Widget arr[] = new Widget[Worker.QUOTA];
     static JLabel A, B, C, D;
     Refresh ref;
-    Worker[] workArr = Worker.workerArray;
+     Worker[] workArr = Worker.workerArray;
     
     Animation()
     {
@@ -45,7 +45,7 @@ public class Animation extends JPanel
         if(wi.handledBy.equals("A, B, C, D"))
             arr[Integer.parseInt(wi.id.substring(6))-1]=null;
         else        
-            arr[Integer.parseInt(wi.id.substring(6))-1] = wi;
+            arr[(Integer.parseInt(wi.id.substring(6))-1)] = wi;
 
         for(int i = 0; i<arr.length; i++)
         {
@@ -53,10 +53,15 @@ public class Animation extends JPanel
             {
                 Widget w = arr[i];
 
-                if(!w.isNew)
-                    w.slot = (w.slot + 1) % ConveyorBelt.BUFFER_SIZE;
-                else
+                if(w.isNew)
+                {
                     w.isNew=false;
+                    w.slot=0;
+                }
+                else if (w.slot==3)
+                    w.slot=3;
+                else
+                    w.slot++;
 
                 if(w.beltOn.equals("AB"))
                 {
@@ -74,6 +79,11 @@ public class Animation extends JPanel
                     {
                         w.xcord=550;
                         w.ycord=85;
+                    }
+                    else if(w.slot==3)
+                    {
+                        w.xcord=700;
+                        w.ycord=100;
                     }
                 }
                 else if(w.beltOn.equals("BC"))
@@ -93,6 +103,11 @@ public class Animation extends JPanel
                         w.xcord=690;
                         w.ycord=500;
                     }
+                    else if(w.slot==3)
+                    {
+                        w.xcord=700;
+                        w.ycord=700;
+                    }
                 }
                 else if (w.beltOn.equals("CD"))
                 {
@@ -111,29 +126,33 @@ public class Animation extends JPanel
                         w.xcord=200;
                         w.ycord=650;
                     }
+                    else if(w.slot==3)
+                    {
+                        w.xcord=100;
+                        w.ycord=700;
+                    }
                 }
                 else if (w.isHold)
                 {
-                    System.out.println(w.id+" IS HOLD BY "+w.isHoldBy);
                     if( w.isHoldBy==('A'))
                     {
-                        w.xcord=400;
-                        w.ycord=400;
+                        w.xcord=100;
+                        w.ycord=100;
                     }
                     else if(w.isHoldBy==('B'))
                     {
-                        w.xcord=400;
-                        w.ycord=20;
+                        w.xcord=700;
+                        w.ycord=100;
                     }
                     else if(w.isHoldBy==('C'))
                     {
-                        w.xcord=400;
-                        w.ycord=400;
+                        w.xcord=700;
+                        w.ycord=700;
                     }
                     else if(w.isHoldBy==('D'))
                     {
-                        w.xcord=400;
-                        w.ycord=400;
+                        w.xcord=100;
+                        w.ycord=700;
                     }
                 }
                 else
@@ -157,15 +176,6 @@ public class Animation extends JPanel
         {
             array = arr;
             employ=e;   
-                System.out.println("UPDATE---------------"); 
-            for(int i = 0; i<arr.length; i++)
-            {
-                if(arr[i]!=null)
-                {
-                System.out.println(arr[i].id+" SLOT "+arr[i].slot+" BELT "+arr[i].beltOn);
-                }
-            }
-                System.out.println("---------------------");
 
             try{Thread.sleep(500);}
             catch(Exception error){System.out.println(error);}
@@ -175,50 +185,48 @@ public class Animation extends JPanel
         {
             super.paintComponent(g);
             gra = g;
-            System.out.println("****************");
             if(employ[0].isIdle)
-            {   System.out.println(employ[0].name+" idle "+employ[0].isIdle);
+            {
                 gra.setColor(Color.RED.darker());
                 gra.fillOval(10, 10, 140, 140);
             }
             else 
-            {   System.out.println(employ[0].name+" idle "+employ[0].isIdle);
+            { 
                 gra.setColor(Color.RED);
                 gra.fillOval(10, 10, 140, 179);
             }
 
             if (employ[1].isIdle)
-            {   System.out.println(employ[1].name+" idle "+employ[1].isIdle);
+            {  
                 gra.setColor(Color.ORANGE.darker());
                 gra.fillOval(650, 10, 140, 140);
             }
             else
-            {   System.out.println(employ[1].name+" idle "+employ[1].isIdle);
+            {  
                 gra.setColor(Color.ORANGE);
                 gra.fillOval(650, 10, 140, 179);
             }
 
             if (employ[2].isIdle)
-            {   System.out.println(employ[2].name+" idle "+employ[2].isIdle);
+            {   
                 gra.setColor(Color.MAGENTA.darker());
                 gra.fillOval(650, 590, 140, 140);
             }
             else
-            {   System.out.println(employ[2].name+" idle "+employ[2].isIdle);
+            {   
                 gra.setColor(Color.MAGENTA);
                 gra.fillOval(650, 590, 140, 179);
             }
             if (employ[3].isIdle)
-            {   System.out.println(employ[3].name+" idle "+employ[3].isIdle);
+            {   
                 gra.setColor(Color.BLUE.darker());
                 gra.fillOval(10, 590, 140, 140);
             }
             else
-            {   System.out.println(employ[3].name+" idle "+employ[3].isIdle);
+            {  
                 gra.setColor(Color.BLUE);
                 gra.fillOval(10, 590, 140, 179);
             }
-            System.out.println("****************");
 
             gra.setColor(Color.GRAY);  
             gra.fillRect(175, 75, 450, 75); 

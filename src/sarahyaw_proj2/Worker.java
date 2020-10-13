@@ -1,7 +1,6 @@
 /*
 @author sarahyaw
 worker class
-Worker colors: A: 609C56 B: 56969C C: 56609C D: 91569C
  */
 package sarahyaw_proj2;
 public class Worker extends Thread
@@ -10,7 +9,7 @@ public class Worker extends Thread
     public String name, position;
     static boolean isHolding, canUpdate=true;
     public static boolean isIdle;
-    public static final int QUOTA = 5;
+    public static final int QUOTA = 24;
     public static Object stop;
     public static Worker[] workerArray = new Worker[4];
 
@@ -41,6 +40,7 @@ public class Worker extends Thread
             A.isHolding=true;
             w = new Widget("widget"+(i+1));
             w.isHoldBy='A';
+            w.isHold=true;
             System.out.println(w.id+" has been created");
             
             
@@ -52,8 +52,9 @@ public class Worker extends Thread
                     try
                     {           
                         A.isIdle=true;
-                        //System.out.println("WARNING: Worker "+A.name+" is idle!");
-                        if(A.isIdle){Factory.a.idleTime(A); A.isIdle=false;}
+                        System.out.println("WARNING: Worker "+A.name+" is idle!");
+                        if(A.isIdle)
+                            Factory.a.idleTime(A);
                         stop.wait(); 
                     }
                     catch(Exception e)
@@ -64,6 +65,7 @@ public class Worker extends Thread
             }
             w.isHoldBy='n';
             w.isHold=false;
+            A.isIdle=false;
             ConveyorBelt.putOnBelt(w, Factory.ABConveyor, A);
             Factory.a.updateFrame(w);
             synchronized(A.stop){A.stop.notifyAll();}
@@ -89,8 +91,10 @@ public class Worker extends Thread
                     try 
                     {      
                         p.isIdle=true;
-                        //System.out.println("WARNING: Worker "+p.name+" is idle!");
-                        if(p.isIdle){Factory.a.idleTime(p); p.isIdle=false;}
+                        System.out.println("WARNING: Worker "+p.name+" is idle!");
+                        if(p.isIdle)
+                            Factory.a.idleTime(p);
+                        p.isIdle=false;                        
                         belt.lock.wait();
                     }
                     catch (Exception e) 
@@ -104,25 +108,24 @@ public class Worker extends Thread
             w.isHoldBy=p.name.charAt(0);
             Factory.a.updateFrame(w);
             synchronized(belt.lock){belt.lock.notifyAll();}
-            //p.setPriority(5);
             p.isHolding=true;
 
             
             w.handledBy = w.handledBy+", "+p.name;
-            //System.out.println("Worker "+p.name+" is working on "+w.id+"<handled by "+w.handledBy+">");
+            System.out.println("Worker "+p.name+" is working on "+w.id+"<handled by "+w.handledBy+">");
             //after pickup, before put down
             ConveyorBelt.napping();
             
-            //p.setPriority(9);//just to keep regular updates :)
-            while(!canUpdate)
+            while(!canUpdate)//just to keep updating 
             {        
                 synchronized(stop)
                 {
                     try
                     {
                         p.isIdle=true;
-                        //System.out.println("WARNING: Worker "+p.name+" is idle!");
+                        System.out.println("WARNING: Worker "+p.name+" is idle!");
                         if(p.isIdle){Factory.a.idleTime(p); p.isIdle=false;}
+                        p.isIdle=false;
                         stop.wait();
                     }
                     catch(Exception e)
@@ -137,6 +140,7 @@ public class Worker extends Thread
             if(w.id.equals("widget"+QUOTA))
                 finished=true;
 
+            Factory.a.updateFrame(w);
 
             if(p.name.equals("B"))
                 putDown(Factory.BCConveyor, p, w); 
@@ -156,8 +160,10 @@ public class Worker extends Thread
                         try
                         {
                             p.isIdle=true; 
-                            //System.out.println("WARNING: Worker "+p.name+" is idle!");
-                            if(p.isIdle){Factory.a.idleTime(p); p.isIdle=false;}
+                            System.out.println("WARNING: Worker "+p.name+" is idle!");
+                            if(p.isIdle)
+                                Factory.a.idleTime(p);
+                            p.isIdle=false;
                             stop.wait();
                         }
                         catch(Exception e)
@@ -183,8 +189,10 @@ public class Worker extends Thread
                 try 
                 {
                     c.isIdle=true;
-                    //System.out.println("WARNING: "+c.name+" is waiting to put " + w.id + " <handled by "+w.handledBy+"> on Full conveyor "+belt.route);
-                    if(c.isIdle){Factory.a.idleTime(c); c.isIdle=false;}
+                    System.out.println("WARNING: "+c.name+" is waiting to put " + w.id + " <handled by "+w.handledBy+"> on Full conveyor "+belt.route);
+                    if(c.isIdle)
+                        Factory.a.idleTime(c);
+                    c.isIdle=false;                   
                     belt.lock.wait();
                 }
                 catch (Exception e) 
@@ -193,28 +201,25 @@ public class Worker extends Thread
                 }
             }            
         }
-        ConveyorBelt.putOnBelt(w, belt, c);
         w.isHold=false;
         w.isHoldBy='n';
+        ConveyorBelt.putOnBelt(w, belt, c);
         Factory.a.updateFrame(w);
-        synchronized(belt.lock){belt.lock.notifyAll();}        
-        //c.setPriority(5);
-
+        synchronized(belt.lock){belt.lock.notifyAll();}     
 
         if(w.id.equals("widget"+QUOTA))
             finished=true;
 
-        
-        //c.setPriority(10); //just to keep regular updates :)
-        while(!canUpdate)
+        while(!canUpdate)//just to keep updating 
         {        
             synchronized(stop)
             {
                 try
                 {
                     c.isIdle=true; 
-                    //System.out.println("WARNING: Worker "+c.name+" is idle!");
+                    System.out.println("WARNING: Worker "+c.name+" is idle!");
                     if(c.isIdle){Factory.a.idleTime(c); c.isIdle=false;}
+                    c.isIdle=false;
                     stop.wait();                       
                 }
                 catch(Exception e)

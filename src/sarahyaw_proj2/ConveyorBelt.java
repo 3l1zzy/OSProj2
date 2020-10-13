@@ -18,7 +18,7 @@ public class ConveyorBelt
     public String route;
     public Widget[] arr;
     public static Object lock;
-    public static final int NAP_TIME = 2000, BUFFER_SIZE = 3;
+    public static final int NAP_TIME = 6000, BUFFER_SIZE = 3;
     ConveyorBelt(String route)
     {
         this.route = route;
@@ -30,7 +30,6 @@ public class ConveyorBelt
         System.out.println(route+" belt is initialized");
     }
  
-    // producer and consumer will call this to nap
     public static void napping() 
     {
         int sleepTime = (int) (NAP_TIME * Math.random());
@@ -61,7 +60,7 @@ public class ConveyorBelt
                 }
             }
         }
-        // add an item to the buffer
+
         ibelt.holding=ibelt.holding+1;
         w.beltOn = ibelt.route;
         w.slot=0;
@@ -71,13 +70,9 @@ public class ConveyorBelt
         ibelt.incoming = (ibelt.incoming + 1) % BUFFER_SIZE;
         System.out.println("Worker "+p.name+" is placing "+w.id+" <handled by "+w.handledBy+"> on the belt "+ibelt.route);
         
-        synchronized(ibelt.lock)
-        {
-            ibelt.lock.notifyAll();
-        }
+        synchronized(ibelt.lock){ ibelt.lock.notifyAll(); }
     }
    
-    // consumer calls this method
     public static synchronized Widget takeOffBelt(ConveyorBelt obelt, Worker c) 
     {
         while(obelt.holding==0)
@@ -95,17 +90,14 @@ public class ConveyorBelt
                 }
             }
         }
-	// remove an item from the buffer
+
         obelt.holding=obelt.holding-1;
         Widget wi = obelt.arr[obelt.outgoing];
         wi.isHold = true;
         obelt.outgoing = (obelt.outgoing + 1) % BUFFER_SIZE;
         System.out.println("Worker "+c.name+" is retrieving "+wi.id+" <handled by "+wi.handledBy+"> from the belt "+obelt.route);
 
-        synchronized(obelt.lock)
-        {        
-            obelt.lock.notifyAll();
-        }
+        synchronized(obelt.lock) { obelt.lock.notifyAll(); }
       
         return wi;
     }
